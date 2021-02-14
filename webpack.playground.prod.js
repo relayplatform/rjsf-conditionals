@@ -16,6 +16,7 @@ module.exports = {
   entry: {
     index: './playground/page-index/index.js',
     sum: './playground/page-sum/index.js',
+    'sum-material-template': './playground/page-sum-material-template/index.js',
     'field-removal': './playground/page-field-removal/index.js'
   },
 
@@ -59,6 +60,11 @@ module.exports = {
       template: './playground/page-sum/tmpl.html',
       chunks: ['sum'],
       filename: 'sum.html'
+    }),
+    new HtmlWebpackPlugin({
+      template: './playground/page-sum-material-template/tmpl.html',
+      chunks: ['sum-material-template'],
+      filename: 'sum-material-template.html'
     }),
     new HtmlWebpackPlugin({
       template: './playground/page-field-removal/tmpl.html',
