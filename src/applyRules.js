@@ -117,7 +117,9 @@ export class FormWithConditionals extends Component {
 }
 
 FormWithConditionals.propTypes = {
-  formComponent: PropTypes.oneOfType([PropTypes.element, PropTypes.func]).isRequired,
+  formComponent: PropTypes.oneOfType([PropTypes.element, PropTypes.func, PropTypes.shape({
+    render: PropTypes.func
+  })]).isRequired,
   rulesRunner: PropTypes.func.isRequired,
   initialSchema: PropTypes.object.isRequired,
   initialUiSchema: PropTypes.object,
