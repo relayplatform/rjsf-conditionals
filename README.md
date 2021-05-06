@@ -735,6 +735,7 @@ ReactDOM.render(
 
 This repo is using [Github Actions](https://docs.github.com/en/actions) as a CI environment which is used to publish releases to NPM.
 
+* Change version in `package.json` and in `package-lock.json` to `2.3.4` or another semver one
 * Create a new tag and push it `git tag v2.3.4 && git push --tags`
 * Create a new release on Github and select the tag to release against, i.e. `v2.3.4`
 * Add a title and notes. Notes usually are extracted by running `git log --oneline` on a dev machine
