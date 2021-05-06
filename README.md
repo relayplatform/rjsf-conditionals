@@ -141,7 +141,7 @@ Conditionals functionality is build using 2 things
 Rules engine responsibility is to trigger events, action mechanism
 performs needed actions on the requests.
 
-## Rules engine
+### Rules engine
 
 Project supports 2 rules engines out of the box:
 - [Json Rules Engine](https://github.com/CacheControl/json-rules-engine)
@@ -187,7 +187,7 @@ ReactDOM.render(
 );
 ```
 
-### Extending rules engine
+#### Extending rules engine
 
 If non of the provided engines satisfies, your needs, you can
 implement your own `Engine` which should
@@ -209,7 +209,7 @@ Original `rules` and `schema` is used as a parameter for a factory call,
 in order to be able to have additional functionality, such as rules to schema compliance validation,
 like it's done in Simplified Json Rules Engine](https://github.com/RxNT/json-rules-engine-simplified)
 
-## Schema action mechanism
+### Schema action mechanism
 
 Rules engine emits events, which are expected to have a `type` and `params` field,
 `type` is used to distinguish action that is needed, `params` are used as input for that action:
@@ -228,7 +228,7 @@ By default action mechanism defines a supported set of rules, which you can exte
 - `remove` removes a field or set of fields from `schema` and `uiSchema`
 - `require` makes a field or set of fields required
 
-### Remove action
+#### Remove action
 
 If you want to remove a field, your configuration should look like this:
 
@@ -297,7 +297,7 @@ You can remove the nested booleanValA or booleanValB like so:
   }
 ```
 
-### Require action
+#### Require action
 
 The same convention goes for `require` action
 
@@ -329,7 +329,7 @@ For multiple fields:
     }
 ```
 
-## UiSchema actions
+### UiSchema actions
 
 API defines a set of actions, that you can take on `uiSchema`, they cover most of the
 
@@ -383,7 +383,7 @@ with event `params` something like this
 
 And look at different results depend on the choosen action.
 
-### uiAppend
+#### uiAppend
 
 UiAppend can handle `arrays` and `string`, with fallback to `uiOverride` behavior for all other fields.
 
@@ -413,7 +413,7 @@ In this case it
 
 This is useful for example if you want to add some additional markup in your code, without touching layout that you've defined.
 
-### uiOverride
+#### uiOverride
 
 `uiOverride` behaves similar to append, but instead of appending it completely replaces overlapping values  
 
@@ -441,7 +441,7 @@ In this case it
  - added `classNames` and enabled `firstName`
  - as for the `num` in `firstName` it just overrode it
 
-### uiReplace
+#### uiReplace
 
 `uiReplace` just replaces all fields in `uiSchema` with `params` fields, leaving unrelated fields untouched.
 
@@ -463,7 +463,7 @@ So the result `uiSchema` will be
 }
 ```
 
-## Extension mechanism
+### Extension mechanism
 
 You can extend existing actions list, by specifying `extraActions` on the form.
 
@@ -517,7 +517,7 @@ ReactDOM.render(
 
 Provided snippet does just that.
 
-### Extension with calculated values
+#### Extension with calculated values
 
 In case you need to calculate value, based on other field values, you can also do that.
 
@@ -602,7 +602,7 @@ But it will work only if you put it after `updateSum` rule, like this
 
 Otherwise it will work with **old `sum` values** and therefor show incorrect value.
 
-### Rules order
+#### Rules order
 
 Originally actions performed in sequence defined in the array. If you have interdependent rules, that you need to run in order
 you can specify `order` on a rule, so that it would be executed first. Rules are executed based on order from lowest to highest with
@@ -635,7 +635,7 @@ For example to make updateSum work regardless the order rules were added, you ca
 ```
 Here although `updateSum` comes after `appendClass`, it will be executed first, since it has a lower order.
 
-## Action validation mechanism
+### Action validation mechanism
 
 All default actions are validated by default, checking that field exists in the schema, to save you some headaches.
 There are 2 levels of validation
@@ -647,7 +647,7 @@ You can define those validations in your actions as well, to improve actions usa
 
 All validation is disabled in production.
 
-### Prop types action validation
+#### Prop types action validation
 
 This is reuse of familiar `prop-types` validation used with React components, and it's used in the same way:
 
@@ -675,7 +675,7 @@ replaceClassNames.propTypes = {
 };
 ```
 
-## Explicit validation
+### Explicit validation
 
 In order to provide more granular validation, you can specify validate function on
 your action, that will receive `params`, `schema` and `uiSchema` so you could provide appropriate validation.
@@ -717,7 +717,7 @@ For our `replaceClassNames` action, it would look similar:
   };
 ```
 
-# Listening to configuration changes
+### Listening to configuration changes
 
 In order to listen for configuration changes you can specify `onSchemaConfChange`, which will be notified every time `schema` or `uiSchema` changes it's value.
 
@@ -730,6 +730,15 @@ ReactDOM.render(
 );
 
 ```
+
+## Publishing
+
+This repo is using [Github Actions](https://docs.github.com/en/actions) as a CI environment which is used to publish releases to NPM.
+
+* Create a new tag and push it `git tag v2.3.4 && git push --tags`
+* Create a new release on Github and select the tag to release against, i.e. `v2.3.4`
+* Add a title and notes. Notes usually are extracted by running `git log --oneline` on a dev machine
+* Click to publish a release and Github Action will pick this event up (see [.github/workflows/npmpublish.yml](./.github/workflows/npmpublish.yml))
 
 ## Contribute
 
