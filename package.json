@@ -92,7 +92,7 @@
     "html": "1.0.0",
     "html-loader": "^1.1.0",
     "html-webpack-plugin": "^4.3.0",
-    "http-server": "^0.12.3",
+    "http-server": "^13.0.0",
     "husky": "^5.1.2",
     "jest": "^26.0.1",
     "jest-cli": "^26.0.1",
