@@ -5,18 +5,12 @@
 
 # Form with conditionals
 
-**It's a fork of https://github.com/RxNT/react-jsonschema-form-conditionals#readme to support `@rjsf/core v2`**
-
 This project extends [react-jsonschema-form](https://github.com/mozilla-services/react-jsonschema-form) with
 conditional logic, which allow to have more complicated logic expressed and controlled with JSON schema.
 This is primarily useful for complicated schemas with extended business logic,
 which are suspect to changes and need to be manageable and changeable without modifying running application.
 
-If you need simple rule logic, that does not change a lot, you can use original [mozilla project](https://github.com/mozilla-services/react-jsonschema-form),
-by following examples like https://jsfiddle.net/69z2wepo/68259/
-
-The project is done to be fully compatible with mozilla,
-without imposing additional limitations.
+**This version supports `@rjsf/core v2 and above` if you need to support an earlier version of `react-jsonschema-form` use https://github.com/RxNT/react-jsonschema-form-conditionals#readme**
 
 ## Features
 
