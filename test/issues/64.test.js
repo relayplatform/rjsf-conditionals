@@ -42,7 +42,7 @@ const extraActions = {
   }
 };
 
-test("json-rules-engine must not throw when rendering form", () => {
+test("json-rules-engine must not throw when rendering form", done => {
 
   const FormWithConditionals = applyRules(
     schema,
@@ -56,4 +56,5 @@ test("json-rules-engine must not throw when rendering form", () => {
   const name = container.querySelector("[id='root_name']");
   expect(name).not.toBeNull();
 
+  setTimeout(() => done(), 3000);
 });
