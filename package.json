@@ -50,10 +50,10 @@
     "node": ">=10"
   },
   "peerDependencies": {
-    "prop-types": "^15.7.2",
-    "react": "^16.9.0",
     "@rjsf/core": ">=2.0.0",
-    "core-js": "^2.5.7"
+    "core-js": "^2.5.7",
+    "prop-types": "^15.7.2",
+    "react": "^16.9.0"
   },
   "dependencies": {
     "deepcopy": "^2.0.0",
@@ -72,8 +72,9 @@
     "@babel/runtime-corejs2": "^7.8.7",
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
+    "@material-ui/styles": "^4.11.4",
     "@rjsf/core": "^3.2.1",
-    "@rjsf/material-ui": "^3.0.0",
+    "@rjsf/material-ui": "^3.2.1",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.0.0",
     "babel-eslint": "^10.1.0",

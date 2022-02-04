@@ -40,8 +40,7 @@ module.exports = {
 
   // https://webpack.js.org/configuration/dev-server/
   devServer: {
-    port: 8080,
-    writeToDisk: false // https://webpack.js.org/configuration/dev-server/#devserverwritetodisk-
+    port: 8080
   },
 
   // https://webpack.js.org/plugins/html-webpack-plugin/
