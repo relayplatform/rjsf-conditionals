@@ -13,7 +13,9 @@ test("updates uiSchema only of target field", () => {
     Engine,
     {}
   )({
-    vitals: { bloodPressure: { sitting: { pulse: 100 } } },
+    formData: {
+      vitals: { bloodPressure: { sitting: { pulse: 100 } } },
+    },
   }).then((res) => {
     let expectedUiSchema = deepCopy(uiSchema);
     expectedUiSchema.vitals.bloodPressure.sitting.pulse.classNames =

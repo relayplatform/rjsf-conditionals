@@ -24,7 +24,7 @@ export class FormWithConditionals extends Component {
     this.state = {
       schema: props.initialSchema,
       uiSchema: props.initialUiSchema,
-      formData: {},
+      formData: props.formData || {},
     };
   }
 
@@ -32,7 +32,11 @@ export class FormWithConditionals extends Component {
    * Evaluate rules when mounted
    */
   componentDidMount() {
-    this.updateConf(this.props.formData || {});
+    this.updateConf({
+      formData: this.state.formData,
+      schema: this.state.schema,
+      uiSchema: this.state.uiSchema,
+    });
   }
 
   /**
@@ -43,7 +47,11 @@ export class FormWithConditionals extends Component {
     const prevData = prevProps.formData || {};
     const newData = this.props.formData || {};
     if (!deepEquals(prevData, newData)) {
-      this.updateConf(newData);
+      this.updateConf({
+        formData: newData,
+        schema: this.state.schema,
+        uiSchema: this.state.uiSchema,
+      });
     }
   }
 
@@ -57,7 +65,7 @@ export class FormWithConditionals extends Component {
    * @param formData {Object}
    * @param [changeHandler] {Function}
    */
-  updateConf(formData, changeHandler) {
+  updateConf({ formData, schema, uiSchema }, changeHandler) {
     this.updateConfCount += 1;
 
     // make sure last handler wins
@@ -65,7 +73,7 @@ export class FormWithConditionals extends Component {
       this.updateConfHandler = changeHandler;
     }
 
-    this.props.rulesRunner(formData).then((values) => {
+    this.props.rulesRunner({ formData, schema, uiSchema }).then((values) => {
       this.updateConfCount -= 1;
       if (this.updateConfCount < 1) {
         if (!deepEquals(values, this.state)) {
@@ -84,10 +92,10 @@ export class FormWithConditionals extends Component {
    * @param formChange {Object}
    */
   handleChange(formChange) {
-    const { formData } = formChange;
+    const { formData, schema, uiSchema } = formChange;
     const { onChange } = this.props;
     if (!deepEquals(formData, this.state.formData)) {
-      this.updateConf(formData, (newValues) => {
+      this.updateConf({ formData, schema, uiSchema }, (newValues) => {
         if (onChange) {
           let updChange = Object.assign({}, formChange, newValues);
           onChange(updChange);

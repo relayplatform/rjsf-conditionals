@@ -23,13 +23,13 @@ const schema = {
 const runRules = rulesRunner(schema, {}, rules, Engine);
 
 test("remove only single field", () => {
-  return runRules({ one: false }).then(({ schema }) => {
+  return runRules({ formData: { one: false } }).then(({ schema }) => {
     expect(schema.required).toEqual(["one", "three", "four"]);
   });
 });
 
 test("keeps original required", () => {
-  return runRules({ one: true }).then(({ schema }) => {
+  return runRules({ formData: { one: true } }).then(({ schema }) => {
     expect(schema.required).toEqual(["one", "two", "three", "four"]);
   });
 });
