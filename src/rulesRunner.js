@@ -84,23 +84,25 @@ export default function rulesRunner(
         typeof formDataDiff === "object" &&
         Object.keys(formDataDiff).length === 0
       ) {
+        console.log("1");
         return Promise.resolve({
           formData,
           schema: currentSchema,
           uiSchema: currentUiSchema,
         });
       } else if (
-        Object.keys(flatten(formDataDiff)).some((key) =>
+        !Object.keys(flatten(formDataDiff)).some((key) =>
           condtionedFields.includes(key)
         )
       ) {
+        console.log("2");
         return Promise.resolve({
           formData,
           schema: currentSchema,
           uiSchema: currentUiSchema,
         });
       } else {
-        console.log("d");
+        console.log("3");
         return doRunRules(
           engine,
           formData,
@@ -122,6 +124,7 @@ export default function rulesRunner(
         });
       }
     } else {
+      console.log("4");
       return doRunRules(
         engine,
         formData,
