@@ -1,5 +1,8 @@
 import execute from "./actions";
 import deepcopy from "deepcopy";
+import { listAllFields } from "./utils";
+import { diff } from "deep-object-diff";
+import flatten from "flat";
 const { utils } = require("@rjsf/core");
 const { deepEquals } = utils;
 
@@ -60,9 +63,13 @@ export default function rulesRunner(
   engine =
     typeof engine === "function" ? new engine([], initialSchema) : engine;
   normRules(rules).forEach((rule) => engine.addRule(rule));
-
-  return ({ formData, schema: currentSchema, uiSchema: currentUiSchema }) => {
-    console.log("formData", formData);
+  const condtionedFields = listAllFields(rules);
+  return ({
+    formData,
+    schema: currentSchema,
+    uiSchema: currentUiSchema,
+    prevFormData,
+  }) => {
     if (formData === undefined || formData === null) {
       return Promise.resolve({
         schema: initialSchema,
@@ -71,24 +78,69 @@ export default function rulesRunner(
       });
     }
 
-    return doRunRules(
-      engine,
-      formData,
-      initialSchema,
-      initialUiSchema,
-      extraActions
-    ).then((conf) => {
-      if (deepEquals(conf.formData, formData)) {
-        return conf;
+    if (prevFormData !== undefined && prevFormData !== null) {
+      const formDataDiff = diff(prevFormData, formData);
+      if (
+        typeof formDataDiff === "object" &&
+        Object.keys(formDataDiff).length === 0
+      ) {
+        return Promise.resolve({
+          formData,
+          schema: currentSchema,
+          uiSchema: currentUiSchema,
+        });
+      } else if (
+        Object.keys(flatten(formDataDiff)).some((key) =>
+          condtionedFields.includes(key)
+        )
+      ) {
+        return Promise.resolve({
+          formData,
+          schema: currentSchema,
+          uiSchema: currentUiSchema,
+        });
       } else {
+        console.log("d");
         return doRunRules(
           engine,
-          conf.formData,
+          formData,
           initialSchema,
           initialUiSchema,
           extraActions
-        );
+        ).then((conf) => {
+          if (deepEquals(conf.formData, formData)) {
+            return conf;
+          } else {
+            return doRunRules(
+              engine,
+              conf.formData,
+              initialSchema,
+              initialUiSchema,
+              extraActions
+            );
+          }
+        });
       }
-    });
+    } else {
+      return doRunRules(
+        engine,
+        formData,
+        initialSchema,
+        initialUiSchema,
+        extraActions
+      ).then((conf) => {
+        if (deepEquals(conf.formData, formData)) {
+          return conf;
+        } else {
+          return doRunRules(
+            engine,
+            conf.formData,
+            initialSchema,
+            initialUiSchema,
+            extraActions
+          );
+        }
+      });
+    }
   };
 }

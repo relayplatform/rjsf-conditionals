@@ -24,7 +24,7 @@ export class FormWithConditionals extends Component {
     this.state = {
       schema: props.initialSchema,
       uiSchema: props.initialUiSchema,
-      formData: props.formData || {},
+      formData: {},
     };
   }
 
@@ -33,7 +33,7 @@ export class FormWithConditionals extends Component {
    */
   componentDidMount() {
     this.updateConf({
-      formData: this.state.formData,
+      formData: this.props.formData,
       schema: this.state.schema,
       uiSchema: this.state.uiSchema,
     });
@@ -51,6 +51,7 @@ export class FormWithConditionals extends Component {
         formData: newData,
         schema: this.state.schema,
         uiSchema: this.state.uiSchema,
+        prevFormData: prevProps.formData,
       });
     }
   }
@@ -65,7 +66,7 @@ export class FormWithConditionals extends Component {
    * @param formData {Object}
    * @param [changeHandler] {Function}
    */
-  updateConf({ formData, schema, uiSchema }, changeHandler) {
+  updateConf({ formData, schema, uiSchema, prevFormData }, changeHandler) {
     this.updateConfCount += 1;
 
     // make sure last handler wins
@@ -73,17 +74,19 @@ export class FormWithConditionals extends Component {
       this.updateConfHandler = changeHandler;
     }
 
-    this.props.rulesRunner({ formData, schema, uiSchema }).then((values) => {
-      this.updateConfCount -= 1;
-      if (this.updateConfCount < 1) {
-        if (!deepEquals(values, this.state)) {
-          this.setState(values);
+    this.props
+      .rulesRunner({ formData, schema, uiSchema, prevFormData })
+      .then((values) => {
+        this.updateConfCount -= 1;
+        if (this.updateConfCount < 1) {
+          if (!deepEquals(values, this.state)) {
+            this.setState(values);
+          }
+          const maybeHandler = this.updateConfHandler;
+          this.updateConfHandler = null;
+          maybeHandler && maybeHandler(values);
         }
-        const maybeHandler = this.updateConfHandler;
-        this.updateConfHandler = null;
-        maybeHandler && maybeHandler(values);
-      }
-    });
+      });
   }
 
   /**
@@ -95,12 +98,15 @@ export class FormWithConditionals extends Component {
     const { formData, schema, uiSchema } = formChange;
     const { onChange } = this.props;
     if (!deepEquals(formData, this.state.formData)) {
-      this.updateConf({ formData, schema, uiSchema }, (newValues) => {
-        if (onChange) {
-          let updChange = Object.assign({}, formChange, newValues);
-          onChange(updChange);
+      this.updateConf(
+        { formData, schema, uiSchema, prevFormData: this.state.formData },
+        (newValues) => {
+          if (onChange) {
+            let updChange = Object.assign({}, formChange, newValues);
+            onChange(updChange);
+          }
         }
-      });
+      );
     } else {
       onChange && onChange(formChange);
     }
