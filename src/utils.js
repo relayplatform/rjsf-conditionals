@@ -1,4 +1,9 @@
-import { extractRefSchema } from "json-rules-engine-simplified/lib/utils";
+import {
+  extractRefSchema,
+  flatMap,
+} from "json-rules-engine-simplified/lib/utils";
+
+import { fieldsFromCondition } from "json-rules-engine-simplified/lib/validation";
 import env from "./env";
 
 export const toArray = (field) => {
@@ -59,4 +64,12 @@ export function findRelUiSchema(field, uiSchema) {
   } else {
     return findRelUiSchema(field.substr(separator + 1), refUiSchema);
   }
+}
+
+export function listAllFields(rules) {
+  const allRulesConditions = rules.map((rule) => rule.conditions);
+  const allFields = allRulesConditions.map((conditions) => {
+    return flatMap([conditions], fieldsFromCondition);
+  });
+  return allFields.flat();
 }

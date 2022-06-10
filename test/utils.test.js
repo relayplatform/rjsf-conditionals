@@ -1,4 +1,4 @@
-import { findRelSchemaAndField, toError } from "../src/utils";
+import { findRelSchemaAndField, toError, listAllFields } from "../src/utils";
 import selectn from "selectn";
 import envMock, { isDevelopmentMock } from "../src/env";
 jest.mock("../src/env");
@@ -85,7 +85,7 @@ test("find rel schema with ref array object schema", () => {
 test("fail to find rel schema", () => {
   expect(findRelSchemaAndField("email.host", schema)).toEqual({
     field: "email.host",
-    schema
+    schema,
   });
 });
 
@@ -105,4 +105,51 @@ test("invalid field", () => {
 
 test("selectn", () => {
   expect(selectn("firstName", { firstName: {} })).toEqual({});
+});
+
+test("listAllFields", () => {
+  const rules = [
+    {
+      conditions: {
+        a: {
+          is: "blue",
+        },
+      },
+    },
+    {
+      conditions: {
+        or: [
+          {
+            b: "empty",
+          },
+          {
+            c: "empty",
+          },
+        ],
+      },
+    },
+    {
+      conditions: {
+        "d.e": "empty",
+      },
+    },
+    {
+      conditions: {
+        not: {
+          or: [
+            {
+              f: "empty",
+              g: "empty",
+            },
+            {
+              h: "empty",
+            },
+          ],
+        },
+      },
+    },
+  ];
+
+  const fields = listAllFields(rules);
+  expect(fields).toEqual(["a", "b", "c", "d.e", "f", "g", "h"]);
 });
