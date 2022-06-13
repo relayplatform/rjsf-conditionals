@@ -44,14 +44,13 @@ export class FormWithConditionals extends Component {
    * schema and uiSchema is not taken into account
    */
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const prevData = prevProps.formData || {};
     const newData = this.props.formData || {};
-    if (!deepEquals(prevData, newData)) {
+    if (!deepEquals(prevState.formData, newData)) {
       this.updateConf({
         formData: newData,
         schema: this.state.schema,
         uiSchema: this.state.uiSchema,
-        prevFormData: prevProps.formData,
+        prevFormData: prevState.formData,
       });
     }
   }
