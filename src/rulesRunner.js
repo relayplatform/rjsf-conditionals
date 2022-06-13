@@ -78,53 +78,12 @@ export default function rulesRunner(
       });
     }
 
-    if (prevFormData !== undefined && prevFormData !== null) {
-      const formDataDiff = diff(prevFormData, formData);
-      if (
-        typeof formDataDiff === "object" &&
-        Object.keys(formDataDiff).length === 0
-      ) {
-        console.log("1");
-        return Promise.resolve({
-          formData,
-          schema: currentSchema,
-          uiSchema: currentUiSchema,
-        });
-      } else if (
-        !Object.keys(flatten(formDataDiff)).some((key) =>
-          condtionedFields.includes(key)
-        )
-      ) {
-        console.log("2");
-        return Promise.resolve({
-          formData,
-          schema: currentSchema,
-          uiSchema: currentUiSchema,
-        });
-      } else {
-        console.log("3");
-        return doRunRules(
-          engine,
-          formData,
-          initialSchema,
-          initialUiSchema,
-          extraActions
-        ).then((conf) => {
-          if (deepEquals(conf.formData, formData)) {
-            return conf;
-          } else {
-            return doRunRules(
-              engine,
-              conf.formData,
-              initialSchema,
-              initialUiSchema,
-              extraActions
-            );
-          }
-        });
-      }
-    } else {
-      console.log("4");
+    const prevFormDataExists =
+      prevFormData !== undefined &&
+      prevFormData !== null &&
+      typeof prevFormData === "object";
+
+    if (!prevFormDataExists) {
       return doRunRules(
         engine,
         formData,
@@ -145,5 +104,47 @@ export default function rulesRunner(
         }
       });
     }
+
+    const formDataDiff = diff(prevFormData, formData);
+    const formDataHasChanged = Object.keys(formDataDiff).length > 0;
+
+    if (!formDataHasChanged) {
+      return Promise.resolve({
+        formData,
+        schema: currentSchema,
+        uiSchema: currentUiSchema,
+      });
+    }
+    const condtionedFieldsHasCHanged = Object.keys(flatten(formDataDiff)).some(
+      (key) => condtionedFields.includes(key)
+    );
+
+    if (!condtionedFieldsHasCHanged) {
+      return Promise.resolve({
+        formData,
+        schema: currentSchema,
+        uiSchema: currentUiSchema,
+      });
+    }
+
+    return doRunRules(
+      engine,
+      formData,
+      initialSchema,
+      initialUiSchema,
+      extraActions
+    ).then((conf) => {
+      if (deepEquals(conf.formData, formData)) {
+        return conf;
+      } else {
+        return doRunRules(
+          engine,
+          conf.formData,
+          initialSchema,
+          initialUiSchema,
+          extraActions
+        );
+      }
+    });
   };
 }
