@@ -23,7 +23,7 @@
     "playground:run:dist": "npm run playground:build && http-server build --port 8080",
     "start": "npm run playground:run:dev",
     "test": "jest",
-    "prepare": "npm run build"
+    "postinstall": "npm run build"
   },
   "jest": {
     "verbose": true,
