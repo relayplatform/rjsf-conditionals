@@ -51,6 +51,7 @@ export class FormWithConditionals extends Component {
         formData: newData,
         schema: this.state.schema,
         uiSchema: this.state.uiSchema,
+        prevFormData: prevData,
       });
     }
   }
