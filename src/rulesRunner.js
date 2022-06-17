@@ -63,7 +63,7 @@ export default function rulesRunner(
   engine =
     typeof engine === "function" ? new engine([], initialSchema) : engine;
   normRules(rules).forEach((rule) => engine.addRule(rule));
-  const condtionedFields = listAllFields(rules);
+  const conditionedFields = listAllFields(rules);
   return ({
     formData,
     schema: currentSchema,
@@ -116,7 +116,7 @@ export default function rulesRunner(
       });
     }
     const condtionedFieldsHasCHanged = Object.keys(flatten(formDataDiff)).some(
-      (key) => condtionedFields.includes(key)
+      (key) => conditionedFields.includes(key)
     );
 
     if (!condtionedFieldsHasCHanged) {
