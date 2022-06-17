@@ -37,7 +37,7 @@ const RULES = [
   },
 ];
 
-test.skip("Re render on rule change", async () => {
+test("Re render on rule change", async () => {
   const runRules = rulesRunner(schema, {}, RULES, Engine);
 
   const handleChangeSpy = sinon.spy(
@@ -82,7 +82,7 @@ test.skip("Re render on rule change", async () => {
   FormWithConditionals.prototype.setState.restore();
 });
 
-test.skip("onChange called with corrected schema", () => {
+test("onChange called with corrected schema", () => {
   let ResForm = applyRules(schema, {}, RULES, Engine)(Form);
   const onChangeSpy = sinon.spy(() => {});
   const wrapper = mount(
@@ -107,7 +107,7 @@ test.skip("onChange called with corrected schema", () => {
   });
 });
 
-test.skip("chain of changes processed", async () => {
+test("chain of changes processed", async () => {
   let ResForm = applyRules(schema, {}, RULES, Engine)(Form);
   const onChangeSpy = sinon.spy(() => {});
   const { container } = render(
@@ -139,7 +139,7 @@ test.skip("chain of changes processed", async () => {
   expect(firstNameInput.value).toEqual("");
 });
 
-test.skip("can submit with forwarded ref", async () => {
+test("can submit with forwarded ref", async () => {
   let ResForm = applyRules(schema, {}, RULES, Engine)(Form);
   const onSubmitSpy = sinon.spy(() => {});
   let formRef;
@@ -162,16 +162,17 @@ test.skip("can submit with forwarded ref", async () => {
   expect(onSubmitSpy.calledOnce).toEqual(true);
 });
 
-test.skip("changes propagated in sequence regardless of function execution timings", async () => {
-  const runRules = rulesRunner(
-    {
-      type: "object",
-      properties: {
-        a: { type: "number" },
-        b: { type: "number" },
-        c: { type: "string" },
-      },
+test("changes propagated in sequence regardless of function execution timings", async () => {
+  const schema = {
+    type: "object",
+    properties: {
+      a: { type: "number" },
+      b: { type: "number" },
+      c: { type: "string" },
     },
+  };
+  const runRules = rulesRunner(
+    schema,
     {},
     [
       {
@@ -225,7 +226,10 @@ test.skip("changes propagated in sequence regardless of function execution timin
   await waitFor(() => {
     expect(updateConfSpy.callCount).toEqual(1);
   });
-  expect(updateConfSpy.getCall(0).args).toEqual([{ a: 0, b: 0 }]);
+  console.log(updateConfSpy.getCall(0).args);
+  expect(updateConfSpy.getCall(0).args).toEqual([
+    { formData: { a: 0, b: 0 }, schema: schema, uiSchema: undefined },
+  ]);
   expect(setStateSpy.callCount).toEqual(1);
   expect(handleChangeSpy.notCalled).toEqual(true);
 
@@ -244,11 +248,22 @@ test.skip("changes propagated in sequence regardless of function execution timin
     expect(updateConfSpy.callCount).toEqual(3);
   });
   expect(updateConfSpy.getCall(1).args).toEqual([
-    { a: 5, b: 0 },
+    {
+      formData: { a: 5, b: 0 },
+      schema: schema,
+      uiSchema: {},
+      prevFormData: { a: 0, b: 0 },
+    },
     expect.anything(),
   ]);
+
   expect(updateConfSpy.getCall(2).args).toEqual([
-    { a: 0, b: 50 },
+    {
+      formData: { a: 0, b: 50 },
+      schema: schema,
+      uiSchema: {},
+      prevFormData: { a: 0, b: 0 },
+    },
     expect.anything(),
   ]);
 
