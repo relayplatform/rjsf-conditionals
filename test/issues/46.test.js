@@ -22,7 +22,7 @@ let uiSchema = {
   lastName: {},
 };
 
-test.skip("no exception on formData undefined", () => {
+test("no exception on formData undefined", () => {
   const runRules = rulesRunner(
     schema,
     uiSchema,

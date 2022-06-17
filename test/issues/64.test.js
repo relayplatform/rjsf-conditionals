@@ -42,7 +42,7 @@ const extraActions = {
   },
 };
 
-test.skip("json-rules-engine must not throw when rendering form", (done) => {
+test("json-rules-engine must not throw when rendering form", (done) => {
   const FormWithConditionals = applyRules(
     schema,
     {},

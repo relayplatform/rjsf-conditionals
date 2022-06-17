@@ -64,7 +64,7 @@ const schema = {
   },
 };
 
-test.skip("should not throw when removing removed field", () => {
+test("should not throw when removing removed field", () => {
   const FormWithConditionals = applyRules(schema, {}, rules, Engine)(Form);
 
   const { container } = render(<FormWithConditionals />);

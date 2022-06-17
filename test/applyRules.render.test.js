@@ -52,7 +52,7 @@ afterEach(function () {
   FormWithConditionals.prototype.render.restore();
 });
 
-test.skip("NO re render on same data", async () => {
+test("NO re render on same data", async () => {
   const runRules = rulesRunner(schema, {}, RULES, Engine);
 
   const { rerender } = render(
@@ -81,7 +81,7 @@ test.skip("NO re render on same data", async () => {
   expect(handleChangeSpy.notCalled).toEqual(true);
 });
 
-test.skip("Re render on formData change", async () => {
+test("Re render on formData change", async () => {
   const runRules = rulesRunner(schema, {}, RULES, Engine);
 
   const { rerender } = render(

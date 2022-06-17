@@ -33,7 +33,7 @@ const EXTRA_ACTIONS = {
   },
 };
 
-test.skip("extra action calculates field value", async () => {
+test("extra action calculates field value", async () => {
   const ResForm = applyRules(SCHEMA, {}, RULES, Engine, EXTRA_ACTIONS)(Form);
   const { container } = render(<ResForm formData={{ a: 1, b: 2 }} />);
   const a = container.querySelector("[id='root_a']");
