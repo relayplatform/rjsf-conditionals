@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { toError } from "./utils";
 import rulesRunner from "./rulesRunner";
-import SimplifiedEngine from "json-rules-engine-simplified";
 import { DEFAULT_ACTIONS } from "./actions";
 import validateAction from "./actions/validateAction";
 import env from "./env";
@@ -159,7 +158,7 @@ export default function applyRules(
   schema,
   uiSchema,
   rules,
-  Engine = SimplifiedEngine,
+  Engine,
   extraActions = {}
 ) {
   if (env.isDevelopment()) {
