@@ -1,13 +1,12 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { toError } from './utils';
-import rulesRunner from './rulesRunner';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { toError } from "./utils";
+import rulesRunner from "./rulesRunner";
+import { DEFAULT_ACTIONS } from "./actions";
+import validateAction from "./actions/validateAction";
+import env from "./env";
 
-import { DEFAULT_ACTIONS } from './actions';
-import validateAction from './actions/validateAction';
-import env from './env';
-
-const { utils } = require('@rjsf/core');
+const { utils } = require("@rjsf/core");
 const { deepEquals } = utils;
 
 /**
@@ -15,7 +14,7 @@ const { deepEquals } = utils;
  * but it also needs to be tested
  */
 export class FormWithConditionals extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.updateConf = this.updateConf.bind(this);
@@ -24,26 +23,35 @@ export class FormWithConditionals extends Component {
     this.state = {
       schema: props.initialSchema,
       uiSchema: props.initialUiSchema,
-      formData: {}
+      formData: {},
     };
   }
 
   /**
    * Evaluate rules when mounted
    */
-  componentDidMount () {
-    this.updateConf(this.props.formData || {});
+  componentDidMount() {
+    this.updateConf({
+      formData: this.props.formData,
+      schema: this.state.schema,
+      uiSchema: this.state.uiSchema,
+    });
   }
 
   /**
    * Re-evaluate rules when form data prop changes
    * schema and uiSchema is not taken into account
    */
-  componentDidUpdate (prevProps, prevState, snapshot) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     const prevData = prevProps.formData || {};
     const newData = this.props.formData || {};
     if (!deepEquals(prevData, newData)) {
-      this.updateConf(newData);
+      this.updateConf({
+        formData: newData,
+        schema: this.state.schema,
+        uiSchema: this.state.uiSchema,
+        prevFormData: prevData,
+      });
     }
   }
 
@@ -57,7 +65,7 @@ export class FormWithConditionals extends Component {
    * @param formData {Object}
    * @param [changeHandler] {Function}
    */
-  updateConf (formData, changeHandler) {
+  updateConf({ formData, schema, uiSchema, prevFormData }, changeHandler) {
     this.updateConfCount += 1;
 
     // make sure last handler wins
@@ -65,17 +73,19 @@ export class FormWithConditionals extends Component {
       this.updateConfHandler = changeHandler;
     }
 
-    this.props.rulesRunner(formData).then((values) => {
-      this.updateConfCount -= 1;
-      if (this.updateConfCount < 1) {
-        if (!deepEquals(values, this.state)) {
-          this.setState(values);
+    this.props
+      .rulesRunner({ formData, schema, uiSchema, prevFormData })
+      .then((values) => {
+        this.updateConfCount -= 1;
+        if (this.updateConfCount < 1) {
+          if (!deepEquals(values, this.state)) {
+            this.setState(values);
+          }
+          const maybeHandler = this.updateConfHandler;
+          this.updateConfHandler = null;
+          maybeHandler && maybeHandler(values);
         }
-        const maybeHandler = this.updateConfHandler;
-        this.updateConfHandler = null;
-        maybeHandler && maybeHandler(values);
-      }
-    });
+      });
   }
 
   /**
@@ -83,22 +93,25 @@ export class FormWithConditionals extends Component {
    * https://react-jsonschema-form.readthedocs.io/en/latest/#form-data-changes
    * @param formChange {Object}
    */
-  handleChange (formChange) {
-    const { formData } = formChange;
+  handleChange(formChange) {
+    const { formData, schema, uiSchema } = formChange;
     const { onChange } = this.props;
     if (!deepEquals(formData, this.state.formData)) {
-      this.updateConf(formData, (newValues) => {
-        if (onChange) {
-          let updChange = Object.assign({}, formChange, newValues);
-          onChange(updChange);
+      this.updateConf(
+        { formData, schema, uiSchema, prevFormData: this.state.formData },
+        (newValues) => {
+          if (onChange) {
+            let updChange = Object.assign({}, formChange, newValues);
+            onChange(updChange);
+          }
         }
-      });
+      );
     } else {
       onChange && onChange(formChange);
     }
   }
 
-  render () {
+  render() {
     const {
       formComponent: FormComponent,
       forwardedRef,
@@ -110,20 +123,24 @@ export class FormWithConditionals extends Component {
 
     // Assignment order is important
     let formConf = Object.assign({}, renderProps, this.state, {
-      onChange: this.handleChange
+      onChange: this.handleChange,
     });
     return <FormComponent ref={forwardedRef} {...formConf} />;
   }
 }
 
 FormWithConditionals.propTypes = {
-  formComponent: PropTypes.oneOfType([PropTypes.element, PropTypes.func, PropTypes.shape({
-    render: PropTypes.func
-  })]).isRequired,
+  formComponent: PropTypes.oneOfType([
+    PropTypes.element,
+    PropTypes.func,
+    PropTypes.shape({
+      render: PropTypes.func,
+    }),
+  ]).isRequired,
   rulesRunner: PropTypes.func.isRequired,
   initialSchema: PropTypes.object.isRequired,
   initialUiSchema: PropTypes.object,
-  forwardedRef: PropTypes.any
+  forwardedRef: PropTypes.any,
 };
 
 /**
@@ -137,7 +154,7 @@ FormWithConditionals.propTypes = {
  * @param [extraActions]
  * @return {function(*): React.ForwardRefExoticComponent<React.PropsWithoutRef<{}> & React.RefAttributes<unknown>>}
  */
-export default function applyRules (
+export default function applyRules(
   schema,
   uiSchema,
   rules,
@@ -153,24 +170,24 @@ export default function applyRules (
           order: PropTypes.number,
           event: PropTypes.oneOfType([
             PropTypes.shape({
-              type: PropTypes.string.isRequired
+              type: PropTypes.string.isRequired,
             }),
             PropTypes.arrayOf(
               PropTypes.shape({
-                type: PropTypes.string.isRequired
+                type: PropTypes.string.isRequired,
               })
-            )
-          ])
+            ),
+          ]),
         })
       ).isRequired,
-      extraActions: PropTypes.object
+      extraActions: PropTypes.object,
     };
 
     PropTypes.checkPropTypes(
       propTypes,
       { rules, Engine, extraActions },
-      'props',
-      'rjsf-conditionals'
+      "props",
+      "rjsf-conditionals"
     );
 
     rules
@@ -193,13 +210,16 @@ export default function applyRules (
 
   return (FormComponent) => {
     return React.forwardRef((props, ref) => {
-      return <FormWithConditionals
-        forwardedRef={ref}
-        formComponent={FormComponent}
-        rulesRunner={runRules}
-        initialSchema={schema}
-        initialUiSchema={uiSchema}
-        {...props} />;
+      return (
+        <FormWithConditionals
+          forwardedRef={ref}
+          formComponent={FormComponent}
+          rulesRunner={runRules}
+          initialSchema={schema}
+          initialUiSchema={uiSchema}
+          {...props}
+        />
+      );
     });
   };
 }

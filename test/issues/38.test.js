@@ -41,7 +41,7 @@ test("array works", () => {
   };
 
   let runRules = rulesRunner(schema, {}, rules, Engine);
-  return runRules({}).then(({ schema, uiSchema }) => {
+  return runRules({ formData: {} }).then(({ schema, uiSchema }) => {
     expect(schema).toEqual(expSchema);
     expect(uiSchema).toEqual(expUiSchema);
   });

@@ -29,7 +29,7 @@ test("executes single action", () => {
 
   let runRules = rulesRuner(SCHEMA, {}, rules, Engine);
 
-  return runRules({}).then(({ schema }) => {
+  return runRules({ formData: {} }).then(({ schema }) => {
     let expectedSchema = {
       required: ["name"],
       properties: {
@@ -68,7 +68,7 @@ test("executes multiple actions", () => {
 
   let runRules = rulesRuner(SCHEMA, {}, rules, Engine);
 
-  return runRules({}).then(({ schema, uiSchema }) => {
+  return runRules({ formData: {} }).then(({ schema, uiSchema }) => {
     let expectedSchema = {
       required: ["name"],
       properties: {
@@ -108,20 +108,21 @@ test("ignored if no formData defined", () => {
 
   let runRules = rulesRuner(SCHEMA, {}, rules, Engine);
 
-  return Promise.all([runRules(undefined), runRules(null)]).then(
-    ([withUndef, withNull]) => {
-      expect(withNull).toEqual({
-        schema: SCHEMA,
-        uiSchema: {},
-        formData: null,
-      });
-      expect(withUndef).toEqual({
-        schema: SCHEMA,
-        uiSchema: {},
-        formData: undefined,
-      });
-    }
-  );
+  return Promise.all([
+    runRules({ formData: undefined }),
+    runRules({ formData: null }),
+  ]).then(([withUndef, withNull]) => {
+    expect(withNull).toEqual({
+      schema: SCHEMA,
+      uiSchema: {},
+      formData: null,
+    });
+    expect(withUndef).toEqual({
+      schema: SCHEMA,
+      uiSchema: {},
+      formData: undefined,
+    });
+  });
 });
 
 test("extra actions get evaluated", async () => {
@@ -153,7 +154,7 @@ test("extra actions get evaluated", async () => {
 
   let runRules = rulesRuner(SCHEMA, {}, RULES, Engine, EXTRA_ACTIONS);
 
-  const { formData } = await runRules({ a: 1, b: 2 });
+  const { formData } = await runRules({ formData: { a: 1, b: 2 } });
   expect(formData.sum).toEqual(3);
 });
 
@@ -178,6 +179,6 @@ test("remove part of schema", async () => {
 
   let runRules = rulesRuner(SCHEMA, {}, RULES, Engine);
 
-  const { schema } = await runRules({ a: {}, b: {} });
+  const { schema } = await runRules({ formData: { a: {}, b: {} } });
   expect(schema.properties).toStrictEqual({ a: { type: "object" } });
 });
