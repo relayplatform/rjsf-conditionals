@@ -73,3 +73,23 @@ export function listAllFields(rules) {
   });
   return allFields.flat();
 }
+
+export function removeFieldValue(path, formData = {}) {
+  let separator = path.indexOf(".");
+
+  if (separator === -1) {
+    formData[path] = undefined;
+    // set(formData, path, undefined);
+  }
+
+  const key = path.substring(0, separator);
+
+  if (typeof formData[key] === "object" && Array.isArray(formData[key])) {
+    formData[key].forEach((_f, index) => {
+      removeFieldValue(path.substring(separator + 1), formData[key][index]);
+    });
+  }
+  if (typeof formData[key] === "object" && !Array.isArray(formData[key])) {
+    removeFieldValue(path.substring(separator + 1), formData[key]);
+  }
+}

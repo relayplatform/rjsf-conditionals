@@ -1,4 +1,9 @@
-import { findRelSchemaAndField, toError, listAllFields } from "../src/utils";
+import {
+  findRelSchemaAndField,
+  toError,
+  listAllFields,
+  removeFieldValue,
+} from "../src/utils";
 import selectn from "selectn";
 import envMock, { isDevelopmentMock } from "../src/env";
 jest.mock("../src/env");
@@ -152,4 +157,111 @@ test("listAllFields", () => {
 
   const fields = listAllFields(rules);
   expect(fields).toEqual(["a", "b", "c", "d.e", "f", "g", "h"]);
+});
+
+test("remove field value from plain schema", () => {
+  const formData = {
+    firstName: "Michael",
+    lastName: "Jordan",
+    age: "50",
+  };
+  removeFieldValue("lastName", formData);
+  expect(formData).toEqual({ firstName: "Michael", age: "50" });
+});
+
+test("remove field value from nested schema", () => {
+  const formData = {
+    profile: {
+      firstName: "Michael",
+      lastName: "Jordan",
+      age: "50",
+    },
+  };
+  removeFieldValue("profile.lastName", formData);
+  expect(formData).toEqual({ profile: { firstName: "Michael", age: "50" } });
+});
+
+test("remove field value from deeply nested schema", () => {
+  const formData = {
+    profile: {
+      firstName: "Michael",
+      lastName: "Jordan",
+      age: "50",
+      address: {
+        zip: "1234",
+        street: "Albert",
+      },
+    },
+  };
+  removeFieldValue("profile.address.zip", formData);
+  expect(formData).toEqual({
+    profile: {
+      firstName: "Michael",
+      lastName: "Jordan",
+      age: "50",
+      address: {
+        street: "Albert",
+      },
+    },
+  });
+});
+
+test("remove field from deeply nested array", () => {
+  const formData = {
+    courses: [
+      {
+        subject: "Math",
+        students: [
+          {
+            firstName: "Mike",
+            id: 1,
+          },
+          {
+            firstName: "Jordan",
+            id: 2,
+          },
+        ],
+      },
+      {
+        subject: "Physics",
+        students: [
+          {
+            firstName: "Dwayne",
+            id: 3,
+          },
+          {
+            firstName: "Johnson",
+            id: 4,
+          },
+        ],
+      },
+    ],
+  };
+  removeFieldValue("courses.students.id", formData);
+  expect(formData).toEqual({
+    courses: [
+      {
+        subject: "Math",
+        students: [
+          {
+            firstName: "Mike",
+          },
+          {
+            firstName: "Jordan",
+          },
+        ],
+      },
+      {
+        subject: "Physics",
+        students: [
+          {
+            firstName: "Dwayne",
+          },
+          {
+            firstName: "Johnson",
+          },
+        ],
+      },
+    ],
+  });
 });

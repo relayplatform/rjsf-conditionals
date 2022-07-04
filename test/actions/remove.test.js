@@ -81,3 +81,11 @@ test("remove validates fields", () => {
     validateAction(remove, { field: ["title"] }, origSchema, origUiSchema)
   ).toBeUndefined();
 });
+
+test("remove form data", () => {
+  let schema = deepcopy(origSchema);
+  let uiSchema = deepcopy(origUiSchema);
+  let formData = { firstName: "Mike", title: "Personal Information" };
+  remove({ field: "title" }, schema, uiSchema, formData);
+  expect(formData).toEqual({ firstName: "Mike" });
+});
