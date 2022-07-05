@@ -79,7 +79,6 @@ export function removeFieldValue(path, formData = {}) {
 
   if (separator === -1) {
     formData[path] = undefined;
-    // set(formData, path, undefined);
   }
 
   const key = path.substring(0, separator);
