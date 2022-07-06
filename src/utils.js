@@ -77,18 +77,21 @@ export function listAllFields(rules) {
 export function removeFieldValue(path, formData = {}) {
   let separator = path.indexOf(".");
 
-  if (separator === -1) {
+  if (separator === -1 && formData && typeof formData === "object") {
     formData[path] = undefined;
+    return;
   }
 
   const key = path.substring(0, separator);
+  const data = formData && typeof formData === "object" && formData[key];
+  const valid = data && typeof data === "object";
 
-  if (typeof formData[key] === "object" && Array.isArray(formData[key])) {
-    formData[key].forEach((_f, index) => {
-      removeFieldValue(path.substring(separator + 1), formData[key][index]);
+  if (valid && Array.isArray(data)) {
+    data.forEach((_f, index) => {
+      removeFieldValue(path.substring(separator + 1), data[index]);
     });
   }
-  if (typeof formData[key] === "object" && !Array.isArray(formData[key])) {
-    removeFieldValue(path.substring(separator + 1), formData[key]);
+  if (valid && !Array.isArray(data)) {
+    removeFieldValue(path.substring(separator + 1), data);
   }
 }
