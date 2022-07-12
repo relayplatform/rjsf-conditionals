@@ -39,12 +39,10 @@ test("extra action calculates field value", async () => {
   const a = container.querySelector("[id='root_a']");
   const b = container.querySelector("[id='root_b']");
   const sum = container.querySelector("[id='root_sum']");
-  expect(a.value).toBe("");
-  expect(b.value).toBe("");
+  expect(a.value).toBe("1");
+  expect(b.value).toBe("2");
   expect(sum.value).toBe("");
   await waitFor(() => {
-    expect(a.value).toBe("1");
-    expect(b.value).toBe("2");
     expect(sum.value).toBe("3");
   });
 });
