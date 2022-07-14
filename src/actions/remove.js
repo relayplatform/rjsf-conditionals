@@ -1,14 +1,22 @@
-import { toArray, findRelSchemaAndField, findRelUiSchema } from "../utils";
+import {
+  toArray,
+  findRelSchemaAndField,
+  findRelUiSchema,
+  removeFieldValue,
+} from "../utils";
 import { validateFields } from "./validateAction";
 import PropTypes from "prop-types";
 
-function doRemove({ field, schema }, uiSchema) {
+function doRemove({ field, schema }, uiSchema, { formData, path }) {
   let requiredIndex = schema.required ? schema.required.indexOf(field) : -1;
   if (requiredIndex !== -1) {
     schema.required.splice(requiredIndex, 1);
   }
+
   delete schema.properties[field];
   delete uiSchema[field];
+  removeFieldValue(path, formData);
+
   let fieldIndex = (uiSchema["ui:order"] ? uiSchema["ui:order"] : []).indexOf(
     field
   );
@@ -25,12 +33,16 @@ function doRemove({ field, schema }, uiSchema) {
  * @param uiSchema
  * @returns {{schema: *, uiSchema: *}}
  */
-export default function remove({ field }, schema, uiSchema) {
+export default function remove({ field }, schema, uiSchema, formData) {
   let fieldArr = toArray(field);
   fieldArr.forEach((field) =>
     doRemove(
       findRelSchemaAndField(field, schema),
-      findRelUiSchema(field, uiSchema)
+      findRelUiSchema(field, uiSchema),
+      {
+        formData,
+        path: field,
+      }
     )
   );
 }
