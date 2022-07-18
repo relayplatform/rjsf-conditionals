@@ -78,7 +78,7 @@ export function removeFieldValue(path, formData = {}) {
   let separator = path.indexOf(".");
 
   if (separator === -1 && formData && typeof formData === "object") {
-    formData[path] = undefined;
+    delete formData[path];
     return;
   }
 

@@ -23,7 +23,7 @@ export class FormWithConditionals extends Component {
     this.state = {
       schema: props.initialSchema,
       uiSchema: props.initialUiSchema,
-      formData: {},
+      formData: props.formData || {},
     };
   }
 
