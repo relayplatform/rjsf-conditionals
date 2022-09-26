@@ -13,7 +13,7 @@ import PropTypes from "prop-types";
 function doOverride(uiSchema, params) {
   for (let field in params) {
     // Prevent prototype pollution
-    if (!Object.hasOwn(params, field)) {
+    if (!Object.prototype.hasOwnProperty.call(params, field)) {
       continue;
     }
     if (field === "__proto__" || field === "constructor") {
