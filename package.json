@@ -109,7 +109,7 @@
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "rimraf": "^3.0.2",
-    "sinon": "^13.0.1",
+    "sinon": "^14.0.0",
     "style-loader": "^2.0.0",
     "terser-webpack-plugin": "^4.2.2",
     "webpack": "^4.46.0",
