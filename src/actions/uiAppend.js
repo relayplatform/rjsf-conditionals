@@ -12,7 +12,15 @@ import PropTypes from "prop-types";
  * @returns {{schema: *, uiSchema: *}}
  */
 function doAppend(uiSchema, params) {
-  Object.keys(params).forEach((field) => {
+  for (let field in params) {
+    // Prevent prototype pollution
+    if (!Object.prototype.hasOwnProperty.call(params, field)) {
+      continue;
+    }
+    if (field === "__proto__" || field === "constructor") {
+      continue;
+    }
+
     let appendVal = params[field];
     let fieldUiSchema = uiSchema[field];
     if (!fieldUiSchema) {
@@ -30,7 +38,7 @@ function doAppend(uiSchema, params) {
     } else {
       uiSchema[field] = appendVal;
     }
-  });
+  }
 }
 
 export default function uiAppend(params, schema, uiSchema) {
