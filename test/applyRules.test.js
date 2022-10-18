@@ -23,6 +23,14 @@ const schema = {
   },
 };
 
+const schema_with_array = {
+  type: "object",
+  properties: {
+    a: { type: "array" },
+    b: { type: "array" },
+  },
+};
+
 const RULES = [
   {
     conditions: {
@@ -36,6 +44,27 @@ const RULES = [
     },
   },
 ];
+
+const rules_with_array = [{
+  conditions: {
+    not: {
+      a: {
+        and: [
+          "array",
+          {
+            includes: "Software"
+          }
+        ]
+      }
+    }
+  },
+  event: {
+    type: "remove",
+    params: {
+      field: "b"
+    }
+  }
+}];
 
 test("Re render on rule change", async () => {
   const runRules = rulesRunner(schema, {}, RULES, Engine);
@@ -282,4 +311,37 @@ test("changes propagated in sequence regardless of function execution timings", 
   FormWithConditionals.prototype.handleChange.restore();
   FormWithConditionals.prototype.updateConf.restore();
   FormWithConditionals.prototype.setState.restore();
+});
+
+test.only("onChange called with corrected schema using array conditionals", () => {
+  let ResForm = applyRules(schema_with_array, {}, rules_with_array, Engine)(Form);
+  const onChangeSpy = sinon.spy(() => {});
+  const wrapper = mount(
+    <ResForm formData={{ a: [], b: {} }} onChange={onChangeSpy} />
+  );
+
+  wrapper
+    .find("#root_a")
+    .find("input")
+    .simulate("change", { target: { value: ["Hardware"] } });
+  wrapper
+    .find("#root_a")
+    .find("input")
+    .simulate("change", { target: { value: ["Hardware", "Services"] } });
+  wrapper
+    .find("#root_a")
+    .find("input")
+    .simulate("change", { target: { value: ["Hardware", "Services", "Software"] } });
+  return new Promise((resolve) => setTimeout(resolve, 500)).then(() => {
+    const expSchema = {
+      type: "object",
+      properties: {
+        a: { type: "array" },
+        b: { type: "array" }
+      },
+    };
+
+    expect(onChangeSpy).toHaveBeenCalledTimes(3);
+    expect(onChangeSpy.getCall(0).args[0].schema).toEqual(expSchema);
+  });
 });
