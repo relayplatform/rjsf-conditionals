@@ -313,35 +313,49 @@ test("changes propagated in sequence regardless of function execution timings", 
   FormWithConditionals.prototype.setState.restore();
 });
 
-test.only("onChange called with corrected schema using array conditionals", () => {
-  let ResForm = applyRules(schema_with_array, {}, rules_with_array, Engine)(Form);
-  const onChangeSpy = sinon.spy(() => {});
-  const wrapper = mount(
-    <ResForm formData={{ a: [], b: {} }} onChange={onChangeSpy} />
+test("Re render on rule change using array conditinals", async () => {
+  const runRules = rulesRunner(schema_with_array, {}, rules_with_array, Engine);
+
+  const handleChangeSpy = sinon.spy(
+    FormWithConditionals.prototype,
+    "handleChange"
+  );
+  const updateConfSpy = sinon.spy(FormWithConditionals.prototype, "updateConf");
+  const setStateSpy = sinon.spy(FormWithConditionals.prototype, "setState");
+
+  const { container } = render(
+    <FormWithConditionals
+      formComponent={Form}
+      initialSchema={schema_with_array}
+      rulesRunner={runRules}
+      formData={{ a: [] }}
+    />
   );
 
-  wrapper
-    .find("#root_a")
-    .find("input")
-    .simulate("change", { target: { value: ["Hardware"] } });
-  wrapper
-    .find("#root_a")
-    .find("input")
-    .simulate("change", { target: { value: ["Hardware", "Services"] } });
-  wrapper
-    .find("#root_a")
-    .find("input")
-    .simulate("change", { target: { value: ["Hardware", "Services", "Software"] } });
-  return new Promise((resolve) => setTimeout(resolve, 500)).then(() => {
-    const expSchema = {
-      type: "object",
-      properties: {
-        a: { type: "array" },
-        b: { type: "array" }
-      },
-    };
-
-    expect(onChangeSpy).toHaveBeenCalledTimes(3);
-    expect(onChangeSpy.getCall(0).args[0].schema).toEqual(expSchema);
+  expect(updateConfSpy.calledOnce).toEqual(true);
+  await waitFor(() => {
+    // componentDidMount called updateConfSpy which will update state
+    expect(setStateSpy.callCount).toEqual(1);
   });
+  expect(handleChangeSpy.notCalled).toEqual(true);
+
+  const testInputA = container.querySelector("[id='root_a']");
+  expect(testInputA).not.toBeNull();
+  expect(testInputA.value).toEqual([]);
+
+  fireEvent.change(testInputA, { target: { value: ["Hardware"] } });
+  fireEvent.change(testInputA, { target: { value: ["Hardware", "Services"] } });
+  fireEvent.change(testInputA, { target: { value: ["Hardware", "Services", "Software"] } });
+
+  await waitFor(() => {
+    expect(handleChangeSpy.callCount).toEqual(3);
+  });
+  expect(updateConfSpy.callCount).toEqual(4);
+  await waitFor(() => {
+    expect(setStateSpy.callCount).toEqual(4);
+  });
+
+  FormWithConditionals.prototype.handleChange.restore();
+  FormWithConditionals.prototype.updateConf.restore();
+  FormWithConditionals.prototype.setState.restore();
 });
