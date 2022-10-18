@@ -254,3 +254,68 @@ test("does not remove if array conditionals are not met", async () => {
   const { schema } = await runRules({ formData: { a: ["Software"], b: {} } });
   expect(schema.properties).toStrictEqual({ a: { type: "array" }, b: { type: "array" } });
 });
+
+test("array conditional - run rules correctly and render correct field", () => {
+  const SCHEMA = {
+    type: "object",
+    properties: {
+      a: { type: "array" },
+      b: { type: "array" },
+    },
+  };
+
+  const SCHEMA_WITHOUT_B = {
+    type: "object",
+    properties: {
+      a: { type: "array" }
+    },
+  };
+
+  let rules = [{
+    conditions: {
+      not: {
+        a: {
+          and: [
+            "array",
+            {
+              includes: "Software"
+            }
+          ]
+        }
+      }
+    },
+    event: {
+      type: "remove",
+      params: {
+        field: "b"
+      }
+    }
+  }];
+
+  let runRules = rulesRuner(SCHEMA, {}, rules, Engine);
+
+  return Promise.all([
+    runRules({ formData: { a: ["Software"], b: {} } }),
+    runRules({ formData: { a: [], b: {} } }),
+    runRules({ formData: { a: null, b: {} } }),
+  ]).then(([withSoftware, withBlankArray, withNull]) => {
+    console.log("withNull", withNull);
+    expect(withNull).toEqual({
+      schema: SCHEMA_WITHOUT_B,
+      uiSchema: {},
+      formData: { a: null },
+    });
+    console.log("withBlankArray", withBlankArray);
+    expect(withBlankArray).toEqual({
+      schema: SCHEMA_WITHOUT_B,
+      uiSchema: {},
+      formData: { a: [] },
+    });
+    console.log("withSoftware", withSoftware);
+    expect(withSoftware).toEqual({
+      schema: SCHEMA,
+      uiSchema: {},
+      formData: { a: ["Software"], b: {} },
+    });
+  });
+});
