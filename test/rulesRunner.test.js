@@ -199,7 +199,7 @@ test("remove part of schema using array and includes conditionals", async () => 
           and: [
             "array",
             {
-              "includes": "Software"
+              includes: "Software"
             }
           ]
         }
@@ -216,5 +216,41 @@ test("remove part of schema using array and includes conditionals", async () => 
   let runRules = rulesRuner(SCHEMA, {}, RULES, Engine);
 
   const { schema } = await runRules({ formData: { a: {}, b: {} } });
+  expect(schema.properties).toStrictEqual({ a: { type: "array" } });
+});
+
+test("does not remove if array conditionals are not met", async () => {
+  const SCHEMA = {
+    type: "object",
+    properties: {
+      a: { type: "array" },
+      b: { type: "array" },
+    },
+  };
+
+  let RULES = [{
+    conditions: {
+      not: {
+        a: {
+          and: [
+            "array",
+            {
+              includes: "Software"
+            }
+          ]
+        }
+      }
+    },
+    event: {
+      type: "remove",
+      params: {
+        field: "b"
+      }
+    }
+  }];
+
+  let runRules = rulesRuner(SCHEMA, {}, RULES, Engine);
+
+  const { schema } = await runRules({ formData: { a: ["Software"], b: {} } });
   expect(schema.properties).toStrictEqual({ a: { type: "array" }, b: { type: "array" } });
 });
