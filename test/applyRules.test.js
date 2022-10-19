@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import React from "react";
 import Form from "@rjsf/core";
 import Engine from "json-rules-engine-simplified";
