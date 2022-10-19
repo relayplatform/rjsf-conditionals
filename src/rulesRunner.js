@@ -116,7 +116,7 @@ export default function rulesRunner(
       });
     }
     const condtionedFieldsHasCHanged = Object.keys(flatten(formDataDiff)).some(
-      (key) => conditionedFields.includes(key)
+      (key) => conditionedFields.some((field) => key === field || key.startsWith(field + ".") )
     );
 
     if (!condtionedFieldsHasCHanged) {

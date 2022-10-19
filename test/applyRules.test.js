@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import React from "react";
 import Form from "@rjsf/core";
 import Engine from "json-rules-engine-simplified";
@@ -6,6 +9,7 @@ import sinon from "sinon";
 import Adapter from "enzyme-adapter-react-16";
 import { configure, mount } from "enzyme";
 import { fireEvent, render } from "@testing-library/react";
+import userEvent from '@testing-library/user-event';
 import { waitFor } from "@testing-library/dom";
 import rulesRunner from "../src/rulesRunner";
 import { FormWithConditionals } from "../src/applyRules";
@@ -23,6 +27,36 @@ const schema = {
   },
 };
 
+const schema_with_array = {
+  type: "object",
+  properties: {
+    a: {
+      type: "array",
+      items: {
+        type: "string",
+        enum: [
+          "Hardware",
+          "Software",
+          "Services"
+        ],
+        enumNames: [
+          "Hardware",
+          "Software",
+          "Services"
+        ]
+      },
+      title: "Sample Question 1"
+    },
+    b: {
+      type: "array",
+      items: {	
+        type: "string"	
+      },	
+      title: "Sample Question 2"
+    }
+  },
+};
+
 const RULES = [
   {
     conditions: {
@@ -36,6 +70,27 @@ const RULES = [
     },
   },
 ];
+
+const rules_with_array = [{
+  conditions: {
+    not: {
+      a: {
+        and: [
+          "array",
+          {
+            includes: "Software"
+          }
+        ]
+      }
+    }
+  },
+  event: {
+    type: "remove",
+    params: {
+      field: "b"
+    }
+  }
+}];
 
 test("Re render on rule change", async () => {
   const runRules = rulesRunner(schema, {}, RULES, Engine);
@@ -278,6 +333,49 @@ test("changes propagated in sequence regardless of function execution timings", 
     b: 50,
     c: "second",
   });
+
+  FormWithConditionals.prototype.handleChange.restore();
+  FormWithConditionals.prototype.updateConf.restore();
+  FormWithConditionals.prototype.setState.restore();
+});
+
+test("Re render on rule change using array includes conditinals", async () => {
+  const runRules = rulesRunner(schema_with_array, {}, rules_with_array, Engine);
+
+  const handleChangeSpy = sinon.spy(
+    FormWithConditionals.prototype,
+    "handleChange"
+  );
+  const updateConfSpy = sinon.spy(FormWithConditionals.prototype, "updateConf");
+  const setStateSpy = sinon.spy(FormWithConditionals.prototype, "setState");
+  const { container, debug } = render(
+    <FormWithConditionals
+      formComponent={Form}
+      initialSchema={schema_with_array}
+      rulesRunner={runRules}
+      formData={{ a: ["Hardware"], b: {}, c: 123 }}
+    />
+  );
+
+  expect(updateConfSpy.calledOnce).toEqual(true);
+  await waitFor(() => {
+    expect(setStateSpy.callCount).toEqual(1);
+  });
+  expect(handleChangeSpy.notCalled).toEqual(true);
+
+  const inputA = container.querySelector("[id='root_a_0']");
+  const inputB = container.querySelector("[id='root_b']");
+
+  expect(inputA).not.toBeNull();
+  expect(inputB).toBeNull();
+  expect(inputA.value).toEqual("Hardware");
+  const currentCount = handleChangeSpy.callCount;
+  userEvent.selectOptions(inputA, "Software");
+
+  await waitFor(() => {
+    expect(handleChangeSpy.callCount).toEqual(currentCount + 1);
+  });
+  expect(container.querySelector("[id='root_b']")).not.toBeNull();
 
   FormWithConditionals.prototype.handleChange.restore();
   FormWithConditionals.prototype.updateConf.restore();
