@@ -115,11 +115,11 @@ export default function rulesRunner(
         uiSchema: currentUiSchema,
       });
     }
-    const condtionedFieldsHasCHanged = Object.keys(flatten(formDataDiff)).some(
+    const condtionedFieldsHasChanged = Object.keys(flatten(formDataDiff)).some(
       (key) => conditionedFields.some((field) => key === field || key.startsWith(field + ".") )
     );
 
-    if (!condtionedFieldsHasCHanged) {
+    if (!condtionedFieldsHasChanged) {
       return Promise.resolve({
         formData,
         schema: currentSchema,
