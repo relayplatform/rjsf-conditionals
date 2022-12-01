@@ -106,7 +106,7 @@
     "lint-staged": "^12.3.3",
     "mini-css-extract-plugin": "^1.0.0",
     "optimize-css-assets-webpack-plugin": "^6.0.1",
-    "prettier": "^2.0.5",
+    "prettier": "^2.8.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "rimraf": "^3.0.2",
