@@ -6,18 +6,20 @@ import flatten from "flat";
 const { utils } = require("@rjsf/core");
 const { deepEquals } = utils;
 
-function doRunRules(
+function doRunRules({
   engine,
-  formData,
+  currentFormData,
   initialSchema,
   initialUiSchema,
-  extraActions = {}
-) {
+  extraActions = {},
+  currentSchema,
+  currentUiSchema,
+}) {
   let schemaCopy = deepcopy(initialSchema);
   let uiSchemaCopy = deepcopy(initialUiSchema);
-  let formDataCopy = deepcopy(formData);
+  let formDataCopy = deepcopy(currentFormData);
 
-  let res = engine.run(formData).then((result) => {
+  let res = engine.run(currentFormData).then((result) => {
     let events;
     if (Array.isArray(result)) {
       events = result;
@@ -36,10 +38,17 @@ function doRunRules(
   });
 
   return res.then(() => {
+    const schema = diff(currentSchema, schemaCopy) ? schemaCopy : currentSchema;
+    const uiSchema = diff(currentUiSchema, uiSchemaCopy)
+      ? uiSchemaCopy
+      : currentUiSchema;
+    const formData = diff(currentFormData, formDataCopy)
+      ? formDataCopy
+      : currentFormData;
     return {
-      schema: schemaCopy,
-      uiSchema: uiSchemaCopy,
-      formData: formDataCopy,
+      schema: schema,
+      uiSchema: uiSchema,
+      formData: formData,
     };
   });
 }
@@ -65,16 +74,16 @@ export default function rulesRunner(
   normRules(rules).forEach((rule) => engine.addRule(rule));
   const conditionedFields = listAllFields(rules);
   return ({
-    formData,
+    formData: currentFormData,
     schema: currentSchema,
     uiSchema: currentUiSchema,
     prevFormData,
   }) => {
-    if (formData === undefined || formData === null) {
+    if (currentFormData === undefined || currentFormData === null) {
       return Promise.resolve({
         schema: initialSchema,
         uiSchema: initialUiSchema,
-        formData,
+        currentFormData,
       });
     }
 
@@ -84,66 +93,77 @@ export default function rulesRunner(
       typeof prevFormData === "object";
 
     if (!prevFormDataExists) {
-      return doRunRules(
+      return doRunRules({
         engine,
-        formData,
+        currentFormData,
         initialSchema,
         initialUiSchema,
-        extraActions
-      ).then((conf) => {
-        if (deepEquals(conf.formData, formData)) {
+        extraActions,
+        currentSchema,
+        currentUiSchema,
+      }).then((conf) => {
+        if (deepEquals(conf.formData, currentFormData)) {
           return conf;
         } else {
-          return doRunRules(
+          return doRunRules({
             engine,
-            conf.formData,
+            currentFormData: conf.formData,
             initialSchema,
             initialUiSchema,
-            extraActions
-          );
+            extraActions,
+            currentSchema,
+            currentUiSchema,
+          });
         }
       });
     }
 
-    const formDataDiff = diff(prevFormData, formData);
+    const formDataDiff = diff(prevFormData, currentFormData);
     const formDataHasChanged = Object.keys(formDataDiff).length > 0;
 
     if (!formDataHasChanged) {
       return Promise.resolve({
-        formData,
+        currentFormData,
         schema: currentSchema,
         uiSchema: currentUiSchema,
       });
     }
     const condtionedFieldsHasChanged = Object.keys(flatten(formDataDiff)).some(
-      (key) => conditionedFields.some((field) => key === field || key.startsWith(field + ".") )
+      (key) =>
+        conditionedFields.some(
+          (field) => key === field || key.startsWith(field + ".")
+        )
     );
 
     if (!condtionedFieldsHasChanged) {
       return Promise.resolve({
-        formData,
+        currentFormData,
         schema: currentSchema,
         uiSchema: currentUiSchema,
       });
     }
 
-    return doRunRules(
+    return doRunRules({
       engine,
-      formData,
+      currentFormData,
       initialSchema,
       initialUiSchema,
-      extraActions
-    ).then((conf) => {
-      if (deepEquals(conf.formData, formData)) {
+      extraActions,
+      currentSchema,
+      currentUiSchema,
+    }).then((conf) => {
+      if (deepEquals(conf.formData, currentFormData)) {
         return conf;
       } else {
-        return doRunRules(
+        return doRunRules({
           engine,
-          conf.formData,
+          currentFormData: conf.formData,
           initialSchema,
           initialUiSchema,
-          extraActions
-        );
+          extraActions,
+          currentSchema,
+          currentUiSchema,
+        });
       }
     });
   };
