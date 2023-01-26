@@ -83,7 +83,7 @@ export default function rulesRunner(
       return Promise.resolve({
         schema: initialSchema,
         uiSchema: initialUiSchema,
-        currentFormData,
+        formData: currentFormData,
       });
     }
 
@@ -123,7 +123,7 @@ export default function rulesRunner(
 
     if (!formDataHasChanged) {
       return Promise.resolve({
-        currentFormData,
+        formData: currentFormData,
         schema: currentSchema,
         uiSchema: currentUiSchema,
       });
@@ -137,7 +137,7 @@ export default function rulesRunner(
 
     if (!condtionedFieldsHasChanged) {
       return Promise.resolve({
-        currentFormData,
+        formData: currentFormData,
         schema: currentSchema,
         uiSchema: currentUiSchema,
       });
