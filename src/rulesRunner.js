@@ -6,7 +6,12 @@ import flatten from "flat";
 const { utils } = require("@rjsf/core");
 const { deepEquals } = utils;
 
-function doRunRules({
+function hasDiff(oldData, newData) {
+  const diffData = diff(oldData, newData);
+  return Object.keys(diffData).length > 0;
+}
+
+async function doRunRules({
   engine,
   currentFormData,
   initialSchema,
@@ -14,11 +19,21 @@ function doRunRules({
   extraActions = {},
   currentSchema,
   currentUiSchema,
+  prevFormData = {},
 }) {
   let schemaCopy = deepcopy(initialSchema);
   let uiSchemaCopy = deepcopy(initialUiSchema);
   let formDataCopy = deepcopy(currentFormData);
-
+  const previouslyAppliedRules = await engine.run(prevFormData);
+  const currentAppliedRules = await engine.run(currentFormData);
+  const appliedRulesDiff = hasDiff(previouslyAppliedRules, currentAppliedRules);
+  if (appliedRulesDiff) {
+    return {
+      schema: currentSchema,
+      uiSchema: currentUiSchema,
+      formData: currentFormData,
+    };
+  }
   let res = engine.run(currentFormData).then((result) => {
     let events;
     if (Array.isArray(result)) {
@@ -38,11 +53,13 @@ function doRunRules({
   });
 
   return res.then(() => {
-    const schema = diff(currentSchema, schemaCopy) ? schemaCopy : currentSchema;
-    const uiSchema = diff(currentUiSchema, uiSchemaCopy)
+    const schema = hasDiff(currentSchema, schemaCopy)
+      ? schemaCopy
+      : currentSchema;
+    const uiSchema = hasDiff(currentUiSchema, uiSchemaCopy)
       ? uiSchemaCopy
       : currentUiSchema;
-    const formData = diff(currentFormData, formDataCopy)
+    const formData = hasDiff(currentFormData, formDataCopy)
       ? formDataCopy
       : currentFormData;
     return {
@@ -151,6 +168,7 @@ export default function rulesRunner(
       extraActions,
       currentSchema,
       currentUiSchema,
+      prevFormData,
     }).then((conf) => {
       if (deepEquals(conf.formData, currentFormData)) {
         return conf;
@@ -163,6 +181,7 @@ export default function rulesRunner(
           extraActions,
           currentSchema,
           currentUiSchema,
+          prevFormData,
         });
       }
     });
