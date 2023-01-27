@@ -27,47 +27,45 @@ async function doRunRules({
   const previouslyAppliedRules = await engine.run(prevFormData);
   const currentAppliedRules = await engine.run(currentFormData);
   const appliedRulesDiff = hasDiff(previouslyAppliedRules, currentAppliedRules);
-  if (appliedRulesDiff) {
+
+  if (!appliedRulesDiff) {
     return {
       schema: currentSchema,
       uiSchema: currentUiSchema,
       formData: currentFormData,
     };
   }
-  let res = engine.run(currentFormData).then((result) => {
-    let events;
-    if (Array.isArray(result)) {
-      events = result;
-    } else if (
-      typeof result === "object" &&
-      result.events &&
-      Array.isArray(result.events)
-    ) {
-      events = result.events;
-    } else {
-      throw new Error("Unrecognized result from rules engine");
-    }
-    events.forEach((event) =>
-      execute(event, schemaCopy, uiSchemaCopy, formDataCopy, extraActions)
-    );
-  });
 
-  return res.then(() => {
-    const schema = hasDiff(currentSchema, schemaCopy)
-      ? schemaCopy
-      : currentSchema;
-    const uiSchema = hasDiff(currentUiSchema, uiSchemaCopy)
-      ? uiSchemaCopy
-      : currentUiSchema;
-    const formData = hasDiff(currentFormData, formDataCopy)
-      ? formDataCopy
-      : currentFormData;
-    return {
-      schema: schema,
-      uiSchema: uiSchema,
-      formData: formData,
-    };
-  });
+  let events;
+  if (Array.isArray(currentAppliedRules)) {
+    events = currentAppliedRules;
+  } else if (
+    typeof currentAppliedRules === "object" &&
+    currentAppliedRules.events &&
+    Array.isArray(currentAppliedRules.events)
+  ) {
+    events = currentAppliedRules.events;
+  } else {
+    throw new Error("Unrecognized result from rules engine");
+  }
+
+  await events.forEach((event) =>
+    execute(event, schemaCopy, uiSchemaCopy, formDataCopy, extraActions)
+  );
+  const schema = hasDiff(currentSchema, schemaCopy)
+    ? schemaCopy
+    : currentSchema;
+  const uiSchema = hasDiff(currentUiSchema, uiSchemaCopy)
+    ? uiSchemaCopy
+    : currentUiSchema;
+  const formData = hasDiff(currentFormData, formDataCopy)
+    ? formDataCopy
+    : currentFormData;
+  return {
+    schema: schema,
+    uiSchema: uiSchema,
+    formData: formData,
+  };
 }
 
 export function normRules(rules) {
@@ -96,6 +94,7 @@ export default function rulesRunner(
     uiSchema: currentUiSchema,
     prevFormData,
   }) => {
+    console.log("hello world 2");
     if (currentFormData === undefined || currentFormData === null) {
       return Promise.resolve({
         schema: initialSchema,
