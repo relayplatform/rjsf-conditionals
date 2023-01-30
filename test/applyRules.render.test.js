@@ -65,7 +65,8 @@ test("NO re render on same data", async () => {
   );
 
   expect(updateConfSpy.callCount).toEqual(1);
-  await waitFor(() => expect(setStateSpy.callCount).toEqual(1));
+  //intial form data did not cause the schema to change hence the state was not updated
+  await waitFor(() => expect(setStateSpy.callCount).toEqual(0));
   expect(handleChangeSpy.notCalled).toEqual(true);
 
   rerender(
@@ -77,7 +78,7 @@ test("NO re render on same data", async () => {
     />
   );
   expect(updateConfSpy.callCount).toEqual(1);
-  expect(setStateSpy.callCount).toEqual(1);
+  expect(setStateSpy.callCount).toEqual(0);
   expect(handleChangeSpy.notCalled).toEqual(true);
 });
 
@@ -94,7 +95,7 @@ test("Re render on formData change", async () => {
   );
 
   expect(updateConfSpy.calledOnce).toEqual(true);
-  await waitFor(() => expect(setStateSpy.callCount).toEqual(1));
+  await waitFor(() => expect(setStateSpy.callCount).toEqual(0));
   expect(handleChangeSpy.notCalled).toEqual(true);
 
   rerender(
@@ -106,7 +107,8 @@ test("Re render on formData change", async () => {
     />
   );
   expect(updateConfSpy.callCount).toEqual(2);
-  await waitFor(() => expect(setStateSpy.callCount).toEqual(2));
+  //intial form data did not cause the schema to change hence the state was not updated
+  await waitFor(() => expect(setStateSpy.callCount).toEqual(1));
   expect(handleChangeSpy.notCalled).toEqual(true);
 });
 

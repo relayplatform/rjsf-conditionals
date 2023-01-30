@@ -20,6 +20,7 @@ async function doRunRules({
   currentSchema,
   currentUiSchema,
   prevFormData = {},
+  prevFormDataExists,
 }) {
   let schemaCopy = deepcopy(initialSchema);
   let uiSchemaCopy = deepcopy(initialUiSchema);
@@ -27,8 +28,10 @@ async function doRunRules({
   const previouslyAppliedRules = await engine.run(prevFormData);
   const currentAppliedRules = await engine.run(currentFormData);
   const appliedRulesDiff = hasDiff(previouslyAppliedRules, currentAppliedRules);
-
-  if (!appliedRulesDiff) {
+  // in line 22 we are defaulting prevFormData to empty object otherwise line 28 will cause an error.
+  // if initial form data is an empty object then on the first render the applied diff will return false which not correct
+  // that is why we use prevFormDataExists to account for the first render
+  if (!appliedRulesDiff && prevFormDataExists) {
     return {
       schema: currentSchema,
       uiSchema: currentUiSchema,
@@ -94,7 +97,6 @@ export default function rulesRunner(
     uiSchema: currentUiSchema,
     prevFormData,
   }) => {
-    console.log("hello world 2");
     if (currentFormData === undefined || currentFormData === null) {
       return Promise.resolve({
         schema: initialSchema,
@@ -117,6 +119,7 @@ export default function rulesRunner(
         extraActions,
         currentSchema,
         currentUiSchema,
+        prevFormDataExists,
       }).then((conf) => {
         if (deepEquals(conf.formData, currentFormData)) {
           return conf;
@@ -129,6 +132,7 @@ export default function rulesRunner(
             extraActions,
             currentSchema,
             currentUiSchema,
+            prevFormDataExists,
           });
         }
       });
