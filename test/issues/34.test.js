@@ -118,6 +118,8 @@ test("Direct rule", () => {
     formData: {
       registration: { firstName: "Barry" },
     },
+    schema: origSchema,
+    uiSchema: origUiSchema,
   }).then(({ schema, uiSchema, formData }) => {
     let expectedSchema = {
       firstName: { type: "string" },
@@ -144,6 +146,8 @@ test("Opposite rule", () => {
     formData: {
       registration: { firstName: "Barry" },
     },
+    schema: origSchema,
+    uiSchema: origUiSchema,
   }).then(({ schema, uiSchema, formData }) => {
     expect(schema.properties.registration).toEqual(
       origSchema.properties.registration
@@ -171,6 +175,8 @@ test("Opposite rule with order", () => {
     formData: {
       registration: { firstName: "Barry" },
     },
+    schema: origSchema,
+    uiSchema: origUiSchema,
   }).then(({ schema, uiSchema, formData }) => {
     expect(schema.properties.registration).toEqual(
       origSchema.properties.registration

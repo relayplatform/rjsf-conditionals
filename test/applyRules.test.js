@@ -6,7 +6,7 @@ import sinon from "sinon";
 import Adapter from "enzyme-adapter-react-16";
 import { configure, mount } from "enzyme";
 import { fireEvent, render } from "@testing-library/react";
-import userEvent from '@testing-library/user-event';
+import userEvent from "@testing-library/user-event";
 import { waitFor } from "@testing-library/dom";
 import rulesRunner from "../src/rulesRunner";
 import { FormWithConditionals } from "../src/applyRules";
@@ -31,26 +31,18 @@ const schema_with_array = {
       type: "array",
       items: {
         type: "string",
-        enum: [
-          "Hardware",
-          "Software",
-          "Services"
-        ],
-        enumNames: [
-          "Hardware",
-          "Software",
-          "Services"
-        ]
+        enum: ["Hardware", "Software", "Services"],
+        enumNames: ["Hardware", "Software", "Services"],
       },
-      title: "Sample Question 1"
+      title: "Sample Question 1",
     },
     b: {
       type: "array",
-      items: {	
-        type: "string"	
-      },	
-      title: "Sample Question 2"
-    }
+      items: {
+        type: "string",
+      },
+      title: "Sample Question 2",
+    },
   },
 };
 
@@ -68,26 +60,28 @@ const RULES = [
   },
 ];
 
-const rules_with_array = [{
-  conditions: {
-    not: {
-      a: {
-        and: [
-          "array",
-          {
-            includes: "Software"
-          }
-        ]
-      }
-    }
+const rules_with_array = [
+  {
+    conditions: {
+      not: {
+        a: {
+          and: [
+            "array",
+            {
+              includes: "Software",
+            },
+          ],
+        },
+      },
+    },
+    event: {
+      type: "remove",
+      params: {
+        field: "b",
+      },
+    },
   },
-  event: {
-    type: "remove",
-    params: {
-      field: "b"
-    }
-  }
-}];
+];
 
 test("Re render on rule change", async () => {
   const runRules = rulesRunner(schema, {}, RULES, Engine);
@@ -103,6 +97,7 @@ test("Re render on rule change", async () => {
     <FormWithConditionals
       formComponent={Form}
       initialSchema={schema}
+      initialUiSchema={{}}
       rulesRunner={runRules}
       formData={{ firstName: "A" }}
     />
@@ -110,8 +105,8 @@ test("Re render on rule change", async () => {
 
   expect(updateConfSpy.calledOnce).toEqual(true);
   await waitFor(() => {
-    // componentDidMount called updateConfSpy which will update state
-    expect(setStateSpy.callCount).toEqual(1);
+    // componentDidMount called updateConfSpy but since the rules applied did not change the schema setState was not called
+    expect(setStateSpy.callCount).toEqual(0);
   });
   expect(handleChangeSpy.notCalled).toEqual(true);
 
@@ -126,7 +121,7 @@ test("Re render on rule change", async () => {
   });
   expect(updateConfSpy.callCount).toEqual(2);
   await waitFor(() => {
-    expect(setStateSpy.callCount).toEqual(2);
+    expect(setStateSpy.callCount).toEqual(1);
   });
 
   FormWithConditionals.prototype.handleChange.restore();
@@ -266,6 +261,7 @@ test("changes propagated in sequence regardless of function execution timings", 
     <FormWithConditionals
       formComponent={Form}
       initialSchema={schema}
+      initialUiSchema={{}}
       rulesRunner={runRules}
       formData={{
         a: 0,
@@ -278,11 +274,12 @@ test("changes propagated in sequence regardless of function execution timings", 
   await waitFor(() => {
     expect(updateConfSpy.callCount).toEqual(1);
   });
-  console.log(updateConfSpy.getCall(0).args);
+
   expect(updateConfSpy.getCall(0).args).toEqual([
-    { formData: { a: 0, b: 0 }, schema: schema, uiSchema: undefined },
+    { formData: { a: 0, b: 0 }, schema: schema, uiSchema: {} },
   ]);
-  expect(setStateSpy.callCount).toEqual(1);
+  //since the applied rules did not change the initial schema setState is not called
+  expect(setStateSpy.callCount).toEqual(0);
   expect(handleChangeSpy.notCalled).toEqual(true);
 
   const inputA = container.querySelector("[id='root_a']");
@@ -319,7 +316,7 @@ test("changes propagated in sequence regardless of function execution timings", 
     expect.anything(),
   ]);
 
-  expect(setStateSpy.callCount).toEqual(2);
+  expect(setStateSpy.callCount).toEqual(1);
 
   expect(inputC.value).toEqual("second");
 
@@ -349,6 +346,7 @@ test("Re render on rule change using array includes conditinals", async () => {
     <FormWithConditionals
       formComponent={Form}
       initialSchema={schema_with_array}
+      initialUiSchema={{}}
       rulesRunner={runRules}
       formData={{ a: ["Hardware"], b: {}, c: 123 }}
     />
