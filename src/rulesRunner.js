@@ -6,11 +6,6 @@ import flatten from "flat";
 const { utils } = require("@rjsf/core");
 const { deepEquals } = utils;
 
-function hasDiff(oldData, newData) {
-  const diffData = diff(oldData, newData);
-  return Object.keys(diffData).length > 0;
-}
-
 async function doRunRules({
   engine,
   currentFormData,
@@ -27,11 +22,14 @@ async function doRunRules({
   let formDataCopy = deepcopy(currentFormData);
   const previouslyAppliedRules = await engine.run(prevFormData);
   const currentAppliedRules = await engine.run(currentFormData);
-  const appliedRulesDiff = hasDiff(previouslyAppliedRules, currentAppliedRules);
+
   // in line 22 we are defaulting prevFormData to empty object otherwise line 28 will cause an error.
   // if initial form data is an empty object then on the first render the applied diff will return false which not correct
   // that is why we use prevFormDataExists to account for the first render
-  if (!appliedRulesDiff && prevFormDataExists) {
+  if (
+    deepEquals(previouslyAppliedRules, currentAppliedRules) &&
+    prevFormDataExists
+  ) {
     return {
       schema: currentSchema,
       uiSchema: currentUiSchema,
@@ -55,15 +53,16 @@ async function doRunRules({
   await events.forEach((event) =>
     execute(event, schemaCopy, uiSchemaCopy, formDataCopy, extraActions)
   );
-  const schema = hasDiff(currentSchema, schemaCopy)
-    ? schemaCopy
-    : currentSchema;
-  const uiSchema = hasDiff(currentUiSchema, uiSchemaCopy)
-    ? uiSchemaCopy
-    : currentUiSchema;
-  const formData = hasDiff(currentFormData, formDataCopy)
-    ? formDataCopy
-    : currentFormData;
+
+  const schema = deepEquals(currentSchema, schemaCopy)
+    ? currentSchema
+    : schemaCopy;
+  const uiSchema = deepEquals(currentUiSchema, uiSchemaCopy)
+    ? currentUiSchema
+    : uiSchemaCopy;
+  const formData = deepEquals(currentFormData, formDataCopy)
+    ? currentFormData
+    : formDataCopy;
   return {
     schema: schema,
     uiSchema: uiSchema,

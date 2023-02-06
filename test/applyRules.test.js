@@ -97,6 +97,7 @@ test("Re render on rule change", async () => {
     <FormWithConditionals
       formComponent={Form}
       initialSchema={schema}
+      initialUiSchema={{}}
       rulesRunner={runRules}
       formData={{ firstName: "A" }}
     />
@@ -260,6 +261,7 @@ test("changes propagated in sequence regardless of function execution timings", 
     <FormWithConditionals
       formComponent={Form}
       initialSchema={schema}
+      initialUiSchema={{}}
       rulesRunner={runRules}
       formData={{
         a: 0,
@@ -274,7 +276,7 @@ test("changes propagated in sequence regardless of function execution timings", 
   });
 
   expect(updateConfSpy.getCall(0).args).toEqual([
-    { formData: { a: 0, b: 0 }, schema: schema, uiSchema: undefined },
+    { formData: { a: 0, b: 0 }, schema: schema, uiSchema: {} },
   ]);
   //since the applied rules did not change the initial schema setState is not called
   expect(setStateSpy.callCount).toEqual(0);
@@ -344,6 +346,7 @@ test("Re render on rule change using array includes conditinals", async () => {
     <FormWithConditionals
       formComponent={Form}
       initialSchema={schema_with_array}
+      initialUiSchema={{}}
       rulesRunner={runRules}
       formData={{ a: ["Hardware"], b: {}, c: 123 }}
     />

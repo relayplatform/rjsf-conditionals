@@ -59,6 +59,7 @@ test("NO re render on same data", async () => {
     <FormWithConditionals
       formComponent={Form}
       initialSchema={schema}
+      initialUiSchema={{}}
       rulesRunner={runRules}
       formData={{ firstName: "A" }}
     />
@@ -73,6 +74,7 @@ test("NO re render on same data", async () => {
     <FormWithConditionals
       formComponent={Form}
       initialSchema={schema}
+      initialUiSchema={{}}
       rulesRunner={runRules}
       formData={{ firstName: "A" }}
     />
@@ -89,6 +91,7 @@ test("Re render on formData change", async () => {
     <FormWithConditionals
       formComponent={Form}
       initialSchema={schema}
+      initialUiSchema={{}}
       rulesRunner={runRules}
       formData={{ firstName: "A" }}
     />
@@ -102,6 +105,7 @@ test("Re render on formData change", async () => {
     <FormWithConditionals
       formComponent={Form}
       initialSchema={schema}
+      initialUiSchema={{}}
       rulesRunner={runRules}
       formData={{ firstName: "An" }}
     />
@@ -118,6 +122,7 @@ test("Re render on non formData change change", () => {
     <FormWithConditionals
       formComponent={Form}
       initialSchema={schema}
+      initialUiSchema={{}}
       rulesRunner={runRules}
       formData={{ firstName: "A" }}
       some="A"
