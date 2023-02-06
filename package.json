@@ -56,7 +56,7 @@
     "react": "^16.9.0"
   },
   "dependencies": {
-    "deep-object-diff": "^1.1.7",
+    "deep-object-diff": "^1.1.9",
     "deepcopy": "^2.0.0",
     "flat": "^5.0.2",
     "json-rules-engine-simplified": "^0.1.17",
