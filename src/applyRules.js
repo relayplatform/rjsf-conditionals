@@ -5,8 +5,8 @@ import rulesRunner from "./rulesRunner";
 import { DEFAULT_ACTIONS } from "./actions";
 import validateAction from "./actions/validateAction";
 import env from "./env";
+import { utils } from '@rjsf/core';
 
-const { utils } = require("@rjsf/core");
 const { deepEquals } = utils;
 
 /**

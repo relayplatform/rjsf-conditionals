@@ -3,7 +3,7 @@ import deepcopy from "deepcopy";
 import { listAllFields } from "./utils";
 import { diff } from "deep-object-diff";
 import flatten from "flat";
-const { utils } = require("@rjsf/core");
+import { utils } from '@rjsf/core';
 const { deepEquals } = utils;
 
 async function doRunRules({
