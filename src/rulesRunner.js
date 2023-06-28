@@ -6,47 +6,6 @@ import flatten from "flat";
 import { utils } from '@rjsf/core';
 const { deepEquals } = utils;
 
-
-//
-// const execute = (a) =>  {
-//   console.table(a);
-//   console.warn('THIS IS A MESSAGE FROM execute IN RJSF-CONDITIONALS');
-//   _execute(a);
-// };
-//
-// const deepcopy =(a) =>  {
-//   console.table(a);
-//   console.warn('THIS IS A MESSAGE FROM DEEPCOPY IN RJSF-CONDITIONALS');
-//   _deepcopy(a);
-// };
-//
-// const diff = (a) =>  {
-//   console.table(a);
-//   console.warn('THIS IS A MESSAGE FROM DIFF IN RJSF-CONDITIONALS');
-//   _diff(a);
-// };
-//
-//
-// const deepEquals = (a) =>  {
-//   console.table(a);
-//   console.warn('THIS IS A MESSAGE FROM deepEquals IN RJSF-CONDITIONALS');
-//   _utils.deepEquals(a);
-// };
-//
-// const flatten = (a) =>  {
-//   console.table(a);
-//   console.warn('THIS IS A MESSAGE FROM flatten IN RJSF-CONDITIONALS');
-//   _flatten(a);
-// };
-//
-// const listAllFields = (a) =>  {
-//   console.table(a);
-//   console.warn('THIS IS A MESSAGE FROM listAllFields IN RJSF-CONDITIONALS');
-//   _listAllFields(a);
-// };
-
-
-
 async function doRunRules({
   engine,
   currentFormData,
@@ -128,8 +87,6 @@ export default function rulesRunner(
   extraActions
 ) {
   if (!engine) { return; }
-  // const VERY_IMPORTANT_CONSTANT = "THIS IS A STRING YOU FOOL".
-  // console.table(VERY_IMPORTANT_CONSTANT);
   engine =
     typeof engine === "function" ? new engine([], initialSchema) : engine;
   normRules(rules).forEach((rule) => engine.addRule(rule));
