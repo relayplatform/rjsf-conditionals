@@ -20,10 +20,11 @@ function doRequire({ field, schema }) {
  * @param uiSchema
  * @returns {{schema: *, uiSchema: *}}
  */
+
 export default function requireFn({ field }, schema) {
   let fieldArr = toArray(field);
   toArray(fieldArr).forEach((field) =>
-    doRequire(findRelSchemaAndField(field, schema))
+      doRequire(findRelSchemaAndField(field, schema))
   );
 }
 

@@ -1,4 +1,4 @@
-import require from "../../src/actions/require";
+import require from "../../src/actions/requireFn";
 import deepcopy from "deepcopy";
 
 let schema = {

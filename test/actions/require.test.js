@@ -1,5 +1,5 @@
 import deepcopy from "deepcopy";
-import requireFn from "../../src/actions/require";
+import requireFn from "../../src/actions/requireFn";
 import validateAction from "../../src/actions/validateAction";
 import { isDevelopmentMock } from "../../src/env";
 jest.mock("../../src/env");
