@@ -3,7 +3,7 @@ import uiAppend from "../../src/actions/uiAppend";
 import validateAction from "../../src/actions/validateAction";
 import uiReplace from "../../src/actions/uiReplace";
 import remove from "../../src/actions/remove";
-import requireFn from "../../src/actions/require";
+import requireFn from "../../src/actions/_require";
 import { isDevelopmentMock } from "../../src/env";
 jest.mock("../../src/env");
 

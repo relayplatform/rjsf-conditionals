@@ -1,5 +1,5 @@
 import deepcopy from "deepcopy";
-import require from "../../src/actions/require";
+import require from "../../src/actions/_require";
 import validateAction from "../../src/actions/validateAction";
 
 let schema = {
