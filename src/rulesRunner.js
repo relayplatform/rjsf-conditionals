@@ -86,7 +86,6 @@ export default function rulesRunner(
   engine,
   extraActions
 ) {
-  if (!engine) { return; }
   engine =
     typeof engine === "function" ? new engine([], initialSchema) : engine;
   normRules(rules).forEach((rule) => engine.addRule(rule));
