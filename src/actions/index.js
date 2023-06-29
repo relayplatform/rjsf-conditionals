@@ -1,12 +1,12 @@
 import remove from "./remove";
-import require from "./require";
+import _require from "./_require";
 import uiAppend from "./uiAppend";
 import uiReplace from "./uiReplace";
 import uiOverride from "./uiOverride";
 
 export const DEFAULT_ACTIONS = {
   remove,
-  require,
+  'require': _require,
   uiAppend,
   uiReplace,
   uiOverride,
