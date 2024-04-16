@@ -58,7 +58,7 @@
   "dependencies": {
     "deep-object-diff": "^1.1.9",
     "deepcopy": "^2.0.0",
-    "flat": "^5.0.2",
+    "flat": "^6.0.1",
     "json-rules-engine-simplified": "^0.1.17",
     "selectn": "^1.1.2"
   },
